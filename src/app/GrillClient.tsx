@@ -7,13 +7,11 @@ import { useEffect, useRef, useState } from "react";
      ?next=2026-08-15T17:30   -> sæt næste grill (browser-lokal tid)
      ?live=1                  -> tving status "DE GRILLER NU" (grøn)
      ?idle=1                  -> tving status "Ikke lige nu" (rød)
-     ?label=VI%20GRILLER      -> skift kridtteksten hen over fotoet
    ========================================================================= */
 const CONFIG = {
   nextGrill: "2026-07-20T17:30", // næste grill, browser-lokal tid
   grillWindowHours: 3, // hvor længe status forbliver "live"
   forceStatus: null as null | "live" | "idle",
-  photoLabel: "VI GRILLER", // kridttekst hen over fotoet (?label= overstyrer)
 };
 
 const CONSENT_KEY = "griller-consent-v1";
@@ -118,10 +116,6 @@ function initPage(): () => void {
     return `${d.getDate()}. ${DA_MONTHS[d.getMonth()]} · kl. ${pad(d.getHours())}.${pad(d.getMinutes())}`;
   }
 
-  // ---- per-session chalk label over the photo (reusable) ----------------
-  const photoChalk = $("photoChalk");
-  if (photoChalk) photoChalk.textContent = params.get("label") || CONFIG.photoLabel;
-
   // ---- state machine ----------------------------------------------------
   function computeState(now: Date): "live" | "scheduled" | "past" {
     if (force === "live") return "live";
@@ -209,6 +203,76 @@ function initPage(): () => void {
     const stamp = `${wd} ${pad(d.getDate())}.${pad(d.getMonth() + 1)} · ${pad(d.getHours())}.${pad(d.getMinutes())} · Gudhjem havn`;
     const photoTs = $("photoTs");
     if (photoTs) photoTs.textContent = stamp;
+  }
+
+  // ---- scroll-scrubbed living polaroid ---------------------------------
+  {
+    const runway = $("polaroidRunway");
+    const sticky = $("polaroidSticky");
+    const video = $("polaroidVideo") as HTMLVideoElement | null;
+    const progress = $("polaroidProgress");
+    const cue = $("polaroidCue");
+
+    if (runway && sticky && video && progress && cue) {
+      let seeking = false;
+      let active = false;
+      let raf = 0;
+      let completionTracked = false;
+
+      const render = (p: number) => {
+        const bounded = Math.min(1, Math.max(0, p));
+        progress.style.width = `${Math.round(bounded * 100)}%`;
+        cue.textContent = bounded >= .96 ? "ØJEBLIKKET LEVER · GUDHJEM" : "SCROLL · VÆK ØJEBLIKKET";
+        if (bounded >= .96 && !completionTracked) {
+          completionTracked = true;
+          track("event", { name: "living_polaroid_complete" });
+        }
+        return bounded;
+      };
+
+      const frame = () => {
+        if (!active) return;
+        const rect = runway.getBoundingClientRect();
+        const stickyTop = Number.parseFloat(getComputedStyle(sticky).top) || 0;
+        const distance = Math.max(1, runway.offsetHeight - sticky.offsetHeight - stickyTop);
+        const p = render((stickyTop - rect.top) / distance);
+        const duration = Number.isFinite(video.duration) ? video.duration : 0;
+        if (duration > 0) {
+          const target = p * Math.max(0, duration - .06);
+          if (!seeking && Math.abs(video.currentTime - target) > .025) {
+            seeking = true;
+            video.currentTime = target;
+          }
+        }
+        raf = requestAnimationFrame(frame);
+      };
+      const onSeeked = () => { seeking = false; };
+      const onVideoReady = () => { video.dataset.ready = "true"; };
+      video.addEventListener("seeked", onSeeked);
+      video.addEventListener("loadeddata", onVideoReady);
+      if (video.readyState >= 2) onVideoReady();
+
+      if (reduceMotion) {
+        video.removeAttribute("data-ready");
+        cue.textContent = "ORIGINALFOTO · GUDHJEM HAVN";
+        progress.style.width = "100%";
+      } else {
+        const observer = new IntersectionObserver(([entry]) => {
+          active = entry.isIntersecting;
+          cancelAnimationFrame(raf);
+          if (active) frame();
+        }, { rootMargin: "20% 0px" });
+        observer.observe(runway);
+        teardown.push(() => observer.disconnect());
+      }
+
+      teardown.push(() => {
+        active = false;
+        cancelAnimationFrame(raf);
+        video.removeEventListener("seeked", onSeeked);
+        video.removeEventListener("loadeddata", onVideoReady);
+      });
+    }
   }
 
   // ---- facts date -------------------------------------------------------

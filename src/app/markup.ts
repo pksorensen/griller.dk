@@ -38,27 +38,34 @@ export const BODY_HTML = `<div class="board-edge" aria-hidden="true"></div>
         </div>
       </div>
 
-      <div class="photo-col">
-        <div class="arrow-note draw" aria-hidden="true">
-          det er dem
-          <svg viewBox="0 0 60 46" fill="none">
-            <path class="d2" style="--len:80" d="M30 4 C 24 16, 36 24, 30 40" stroke="#ffd15c" stroke-width="3" stroke-linecap="round"/>
-            <path class="d3" style="--len:44" d="M30 40 L 22 32 M30 40 L 38 32" stroke="#ffd15c" stroke-width="3" stroke-linecap="round"/>
-          </svg>
-        </div>
-
-        <figure class="polaroid">
-          <div class="polaroid-inner">
-            <span class="rec"><span class="rec-dot"></span>REC</span>
-            <img src="/hero.jpg" width="1152" height="1536"
-                 alt="Martin Thorborg og Jesper Buch står bag en grillbod på havnen i Gudhjem en solrig sommerdag. Martin har stribet forklæde og kasket på, Jesper har hvid t-shirt, hvid kasket og solbriller på og holder en pølse i grilltangen.">
-            <span class="photo-chalk chalk" id="photoChalk" aria-hidden="true">VI GRILLER</span>
+      <div class="photo-col" id="polaroidRunway">
+        <div class="polaroid-sticky" id="polaroidSticky">
+          <div class="arrow-note draw" aria-hidden="true">
+            det er dem
+            <svg viewBox="0 0 60 46" fill="none">
+              <path class="d2" style="--len:80" d="M30 4 C 24 16, 36 24, 30 40" stroke="#ffd15c" stroke-width="3" stroke-linecap="round"/>
+              <path class="d3" style="--len:44" d="M30 40 L 22 32 M30 40 L 38 32" stroke="#ffd15c" stroke-width="3" stroke-linecap="round"/>
+            </svg>
           </div>
-          <figcaption class="polaroid-cap chalk">
-            Live-bevis · seneste observation
-            <span class="ts mono" id="photoTs">— · —</span>
-          </figcaption>
-        </figure>
+
+          <figure class="polaroid">
+            <div class="polaroid-inner">
+              <span class="rec"><span class="rec-dot"></span>REC</span>
+              <img src="/hero.jpg" width="1152" height="1536"
+                   alt="Martin Thorborg og Jesper Buch står bag en grillbod på havnen i Gudhjem en solrig sommerdag. Martin har stribet forklæde og kasket på, Jesper har hvid t-shirt, hvid kasket og solbriller på og holder en pølse i grilltangen.">
+              <video class="polaroid-video" id="polaroidVideo" muted playsinline preload="metadata" aria-hidden="true">
+                <source src="/griller-polaroid.webm" type="video/webm">
+                <source src="/griller-polaroid.mp4" type="video/mp4">
+              </video>
+            </div>
+            <figcaption class="polaroid-cap chalk">
+              Live-bevis · seneste observation
+              <span class="ts mono" id="photoTs">— · —</span>
+              <span class="polaroid-cue mono" id="polaroidCue">SCROLL · VÆK ØJEBLIKKET</span>
+              <span class="polaroid-progress" aria-hidden="true"><i id="polaroidProgress"></i></span>
+            </figcaption>
+          </figure>
+        </div>
       </div>
     </div>
   </div>
