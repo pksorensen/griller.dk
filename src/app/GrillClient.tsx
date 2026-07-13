@@ -275,6 +275,88 @@ function initPage(): () => void {
     }
   }
 
+  // ---- cinematic grill telemetry separator ----------------------------
+  {
+    const runway = $("telemetryRunway");
+    const stage = $("telemetryStage");
+    const video = $("telemetryVideo") as HTMLVideoElement | null;
+    const phase = $("telemetryPhase");
+    const line = $("telemetryLine");
+    const percent = $("telemetryPercent");
+    const progress = $("telemetryProgress");
+    const cue = $("telemetryCue");
+
+    if (runway && stage && video && phase && line && percent && progress && cue) {
+      const phases = [
+        { at: 0, label: "KOLD START", line: "Scroll langsomt. Vi måler den eneste burn rate, der tæller." },
+        { at: .28, label: "VARMER OP", line: "Kullene svarer. Pølsen er nu i pipeline." },
+        { at: .58, label: "STEGESKORPE", line: "Temperaturen stiger. Traction kan duftes." },
+        { at: .88, label: "SERVERINGSKLAR", line: "Produktet er varmt. Ingen app nødvendig." },
+      ];
+      let seeking = false;
+      let active = false;
+      let raf = 0;
+      let completionTracked = false;
+
+      const render = (p: number) => {
+        const bounded = Math.min(1, Math.max(0, p));
+        const current = [...phases].reverse().find((item) => bounded >= item.at) ?? phases[0];
+        phase.textContent = current.label;
+        line.textContent = current.line;
+        percent.textContent = `${String(Math.round(bounded * 100)).padStart(3, "0")}%`;
+        progress.style.width = `${Math.round(bounded * 100)}%`;
+        cue.style.opacity = bounded > .08 ? "0" : "1";
+        if (bounded >= .96 && !completionTracked) {
+          completionTracked = true;
+          track("event", { name: "grill_telemetry_complete" });
+        }
+        return bounded;
+      };
+
+      const frame = () => {
+        if (!active) return;
+        const rect = runway.getBoundingClientRect();
+        const distance = Math.max(1, runway.offsetHeight - window.innerHeight);
+        const p = render(-rect.top / distance);
+        const duration = Number.isFinite(video.duration) ? video.duration : 0;
+        if (duration > 0) {
+          const target = p * Math.max(0, duration - .06);
+          if (!seeking && Math.abs(video.currentTime - target) > .025) {
+            seeking = true;
+            video.currentTime = target;
+          }
+        }
+        raf = requestAnimationFrame(frame);
+      };
+      const onSeeked = () => { seeking = false; };
+      const onVideoReady = () => { video.dataset.ready = "true"; };
+      video.addEventListener("seeked", onSeeked);
+      video.addEventListener("loadeddata", onVideoReady);
+      if (video.readyState >= 2) onVideoReady();
+
+      if (reduceMotion) {
+        render(1);
+        video.removeAttribute("data-ready");
+        cue.style.display = "none";
+      } else {
+        const observer = new IntersectionObserver(([entry]) => {
+          active = entry.isIntersecting;
+          cancelAnimationFrame(raf);
+          if (active) frame();
+        }, { rootMargin: "15% 0px" });
+        observer.observe(runway);
+        teardown.push(() => observer.disconnect());
+      }
+
+      teardown.push(() => {
+        active = false;
+        cancelAnimationFrame(raf);
+        video.removeEventListener("seeked", onSeeked);
+        video.removeEventListener("loadeddata", onVideoReady);
+      });
+    }
+  }
+
   // ---- facts date -------------------------------------------------------
   {
     const factsDate = $("factsDate");

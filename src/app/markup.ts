@@ -122,6 +122,31 @@ export const BODY_HTML = `<div class="board-edge" aria-hidden="true"></div>
   </div>
 </section>
 
+<!-- ================== GRILLTELEMETRI ================== -->
+<section class="telemetry-runway" id="telemetryRunway" aria-labelledby="telemetryTitle">
+  <div class="telemetry-stage" id="telemetryStage">
+    <video class="telemetry-video" id="telemetryVideo" muted playsinline preload="metadata"
+           poster="/grill-telemetry-poster.jpg" aria-hidden="true">
+      <source src="/grill-telemetry.webm" type="video/webm">
+      <source src="/grill-telemetry.mp4" type="video/mp4">
+    </video>
+    <div class="telemetry-shade" aria-hidden="true"></div>
+    <div class="telemetry-content wrap">
+      <div class="telemetry-copy">
+        <p class="telemetry-kicker">GRILL-LAB · SIMULERING</p>
+        <h2 id="telemetryTitle">Fra kold start<br>til stegeskorpe.</h2>
+        <p class="telemetry-line" id="telemetryLine">Scroll langsomt. Vi måler den eneste burn rate, der tæller.</p>
+        <div class="telemetry-readout" aria-live="polite">
+          <span id="telemetryPhase">KOLD START</span>
+          <span id="telemetryPercent">000%</span>
+        </div>
+        <span class="telemetry-progress" aria-hidden="true"><i id="telemetryProgress"></i></span>
+      </div>
+    </div>
+    <span class="telemetry-cue" id="telemetryCue" aria-hidden="true">SCROLL FOR VARME ↓</span>
+  </div>
+</section>
+
 <!-- ================== NÆSTE GRILL (facts) ================== -->
 <section>
   <div class="wrap">

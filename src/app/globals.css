@@ -239,6 +239,66 @@ h1.headline{
 }
 .arrow-note svg{display:block;width:60px;height:46px;margin:1px auto 0;overflow:visible}
 
+/* ---------------- GRILLTELEMETRI / cinematic separator ---------------- */
+.telemetry-runway{
+  position:relative;width:100%;height:210svh;max-width:none;padding:0;background:#080907;
+}
+.telemetry-stage{
+  position:sticky;top:0;height:100svh;min-height:600px;overflow:hidden;isolation:isolate;
+  background:#080907 url("/grill-telemetry-poster.jpg") 70% center/cover no-repeat;
+}
+.telemetry-video,.telemetry-shade{
+  position:absolute;inset:0;width:100%;height:100%;
+}
+.telemetry-video{
+  z-index:-3;object-fit:cover;object-position:70% center;opacity:0;
+  filter:saturate(1.04) contrast(1.05);transition:opacity .22s ease;background:#080907;
+}
+.telemetry-video[data-ready="true"]{opacity:1}
+.telemetry-shade{
+  z-index:-2;pointer-events:none;background:
+    linear-gradient(90deg,rgba(5,6,5,.96) 0%,rgba(5,6,5,.78) 35%,rgba(5,6,5,.16) 66%,rgba(5,6,5,.18) 100%),
+    linear-gradient(180deg,rgba(5,6,5,.14),transparent 58%,rgba(5,6,5,.68));
+}
+.telemetry-stage::after{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.13;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.32'/%3E%3C/svg%3E");
+  mix-blend-mode:soft-light;
+}
+.telemetry-content{height:100%;display:flex;align-items:center}
+.telemetry-copy{width:min(560px,88vw)}
+.telemetry-kicker{
+  margin:0 0 15px;font-family:var(--mono);font-size:clamp(.66rem,1.1vw,.8rem);
+  letter-spacing:.2em;color:var(--ember);
+}
+.telemetry-copy h2{
+  margin:0;font-family:var(--chalk-font);font-size:clamp(2.7rem,7vw,6.5rem);
+  line-height:.88;letter-spacing:-.045em;color:var(--creme);
+  text-shadow:0 3px 28px rgba(0,0,0,.76);
+}
+.telemetry-line{
+  min-height:3em;margin:22px 0 0;max-width:36ch;font-family:var(--chalk-font);
+  font-size:clamp(1rem,2vw,1.28rem);line-height:1.45;color:var(--creme-dim);
+}
+.telemetry-readout{
+  width:min(440px,100%);display:flex;justify-content:space-between;margin-top:25px;
+  font-family:var(--mono);font-size:clamp(.7rem,1.2vw,.82rem);letter-spacing:.15em;color:var(--yellow);
+}
+.telemetry-progress{
+  display:block;width:min(440px,100%);height:5px;margin-top:10px;overflow:hidden;
+  background:rgba(244,239,225,.16);border-radius:99px;
+}
+.telemetry-progress i{
+  display:block;width:0;height:100%;border-radius:inherit;
+  background:linear-gradient(90deg,var(--red),var(--ember),var(--yellow));
+  box-shadow:0 0 18px rgba(248,127,46,.7);
+}
+.telemetry-cue{
+  position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:.64rem;letter-spacing:.2em;color:var(--creme-faint);
+  white-space:nowrap;transition:opacity .2s ease;
+}
+
 /* ---------------- generic board card ---------------- */
 section{padding:clamp(30px,6vw,54px) 0}
 .kicker{
@@ -437,6 +497,14 @@ footer{padding:clamp(30px,6vw,48px) 0 clamp(40px,7vw,60px);text-align:center}
 @media (max-width:819px){
   .photo-col{height:140svh;min-height:760px}
   .polaroid-sticky{top:clamp(58px,9vh,86px)}
+  .telemetry-runway{height:180svh}
+  .telemetry-stage{min-height:560px;background-position:68% center}
+  .telemetry-video{object-position:68% center}
+  .telemetry-shade{background:linear-gradient(180deg,rgba(5,6,5,.72) 0%,rgba(5,6,5,.18) 42%,rgba(5,6,5,.88) 100%)}
+  .telemetry-content{align-items:flex-end;padding-bottom:clamp(80px,13vh,120px)}
+  .telemetry-copy{width:100%}
+  .telemetry-copy h2{font-size:clamp(2.45rem,13vw,4.3rem);max-width:8ch}
+  .telemetry-line{max-width:28ch;margin-top:15px}
 }
 
 /* ---------------- reduced motion ---------------- */
@@ -452,4 +520,8 @@ footer{padding:clamp(30px,6vw,48px) 0 clamp(40px,7vw,60px);text-align:center}
   .photo-col{height:auto;min-height:0}
   .polaroid-sticky{position:relative;top:auto}
   .polaroid-video{display:none}
+  .telemetry-runway{height:auto}
+  .telemetry-stage{position:relative;height:min(76svh,720px)}
+  .telemetry-video{display:none}
+  .telemetry-cue{display:none}
 }
